@@ -6,7 +6,7 @@
 
 
 // Função auxiliar para comparar cidades pela posição (qsort)
-int compararCidades(const void *a, const void *b) {
+static int compararCidades(const void *a, const void *b) {
     
     const Cidade *ca = (const Cidade *)a;
     const Cidade *cb = (const Cidade *)b;
@@ -15,7 +15,9 @@ int compararCidades(const void *a, const void *b) {
 }
 
 // Função auxiliar para limpar string (remover espaços iniciais e finais)
-void limparString(char *str) {
+static void limparString(char *str) {
+
+    if (!str) return;
 
     // remove espaços iniciais
     char *inicio = str;
@@ -44,6 +46,20 @@ void limparString(char *str) {
 
         str[len-1] = '\0';
         len--;
+
+    }
+
+}
+
+// Função auxiliar para liberar lista encadeada de cidades
+static void freeLista(Cidade *inicio) {
+
+    Cidade *atual = inicio;
+    while (atual != NULL) {
+
+        Cidade *prox = atual->Proximo;
+        free(atual);
+        atual = prox;
 
     }
 
@@ -179,14 +195,7 @@ Estrada *getEstrada(const char *nomeArquivo) {
         if (nova == NULL) {
 
             // Liberar memoria ja alocada 
-            Cidade *atual = inicio; 
-            while (atual != NULL) {
-
-                Cidade *prox = atual->Proximo;
-                free(atual);
-                atual = prox;
-
-            }
+            freeLista(inicio);
 
             free(temp);
             free(estrada);
@@ -242,6 +251,14 @@ double calcularMenorVizinhanca(const char *nomeArquivo) {
     
     // Lê N (número de cidades)
     if (fscanf(arquivo, "%d", &N) != 1) {
+    
+        fclose(arquivo);
+        return 0.0;
+    
+    }
+
+    // Valida restrição: N >= 2 (necessário para calcular vizinhança)
+    if (N < 2) {
     
         fclose(arquivo);
         return 0.0;
@@ -359,6 +376,14 @@ char *cidadeMenorVizinhanca(const char *nomeArquivo) {
     
     // lê N (número de cidades)
     if (fscanf(arquivo, "%d", &N) != 1) {
+
+        fclose(arquivo);
+        return NULL;
+    
+    }
+
+    // Valida restrição: N >= 2 (necessário para calcular vizinhança)
+    if (N < 2) {
 
         fclose(arquivo);
         return NULL;
